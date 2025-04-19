@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual GameFi Wallet</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #29b6f6;
+            --secondary: #7c4dff;
+            --background: #121212;
+            --surface: #1e1e1e;
+            --error: #cf6679;
+            --on-primary: #000000;
+            --on-secondary: #ffffff;
+            --on-background: #ffffff;
+            --on-surface: #ffffff;
+            --on-error: #000000;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--on-background);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--surface);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            padding: 20px;
+            margin: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .balance-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+        
+        .balance-amount {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .balance-sub {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+        }
+        
+        .steps {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .steps i {
+            color: var(--primary);
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            padding: 0 15px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            background-color: var(--surface);
+            border: none;
+            border-radius: 12px;
+            padding: 15px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--on-surface);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+        
+        .action-btn span {
+            font-size: 0.8rem;
+        }
+        
+        .transactions {
+            flex: 1;
+            background-color: var(--surface);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 20px 15px;
+            overflow-y: auto;
+        }
+        
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .transaction {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .transaction-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(41, 182, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+        }
+        
+        .transaction-icon i {
+            color: var(--primary);
+        }
+        
+        .transaction-details {
+            flex: 1;
+        }
+        
+        .transaction-title {
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+        
+        .transaction-date {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+        }
+        
+        .positive {
+            color: #4caf50;
+        }
+        
+        .negative {
+            color: var(--error);
+        }
+        
+        .page {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: var(--background);
+            padding: 15px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 10;
+            overflow-y: auto;
+        }
+        
+        .page.active {
+            transform: translateX(0);
+        }
+        
+        .page-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .page-title {
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--on-surface);
+            font-size: 1rem;
+        }
+        
+        .submit-btn {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: bold;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #03a9f4;
+        }
+        
+        .qr-code {
+            display: flex;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        
+        .qr-code img {
+            width: 200px;
+            height: 200px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        
+        .address {
+            background-color: var(--surface);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            word-break: break-all;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .scan-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 70vh;
+        }
+        
+        .scan-box {
+            width: 250px;
+            height: 250px;
+            border: 3px solid var(--primary);
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .torch-btn {
+            background-color: var(--surface);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--on-surface);
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .torch-btn i {
+            font-size: 1.2rem;
+        }
+        
+        .swap-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .swap-card {
+            background-color: var(--surface);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .swap-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: rgba(124, 77, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+        }
+        
+        .swap-icon i {
+            color: var(--secondary);
+        }
+        
+        .swap-details {
+            flex: 1;
+        }
+        
+        .swap-title {
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+        
+        .swap-rate {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        
+        .swap-arrow {
+            font-size: 1.2rem;
+            opacity: 0.7;
+        }
+        
+        .luck-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .luck-wheel {
+            width: 200px;
+            height: 200px;
+            background: conic-gradient(
+                #4caf50 0% 30%,
+                #f44336 30% 100%
+            );
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .luck-wheel::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+        }
+        
+        .luck-pointer {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid var(--primary);
+        }
+        
+        .luck-btn {
+            background-color: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            border-radius: 8px;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .luck-btn:hover {
+            background-color: #03a9f4;
+        }
+        
+        .stake-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stake-option {
+            background-color: var(--surface);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .stake-option:hover {
+            background-color: rgba(41, 182, 246, 0.1);
+        }
+        
+        .stake-option.active {
+            background-color: rgba(41, 182, 246, 0.2);
+            border: 1px solid var(--primary);
+        }
+        
+        .stake-duration {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        
+        .stake-apy {
+            font-size: 0.9rem;
+            color: var(--primary);
+        }
+        
+        .stake-amount {
+            margin-bottom: 20px;
+        }
+        
+        .collectibles-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .collectible {
+            background-color: var(--surface);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .collectible-image {
+            width: 100%;
+            height: 120px;
+            background-color: rgba(124, 77, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .collectible-image i {
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+        
+        .collectible-details {
+            padding: 10px;
+        }
+        
+        .collectible-name {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .collectible-value {
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 15px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            background-color: var(--surface);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @media (max-width: 400px) {
+            .action-buttons {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* انیمیشن‌ها */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .spinning {
+            animation: spin 1s linear infinite;
+        }
+
+        .pulse {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- صفحه اصلی -->
+        <header>
+            <div class="logo">GameFi Wallet</div>
+            <div class="steps">
+                <i class="fas fa-shoe-prints"></i>
+                <span id="step-count">0</span> قدم
+            </div>
+        </header>
+        
+        <div class="balance-card pulse">
+            <div class="balance-label">موجودی کیف پول</div>
+            <div class="balance-amount" id="balance">0 VUSD</div>
+            <div class="balance-sub">
+                <div>دلار مجازی</div>
+                <div class="steps">
+                    <i class="fas fa-shoe-prints"></i>
+                    <span id="steps-value">0</span> قدم امروز
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="action-btn" id="send-btn">
+                <i class="fas fa-paper-plane"></i>
+                <span>ارسال</span>
+            </button>
+            <button class="action-btn" id="receive-btn">
+                <i class="fas fa-qrcode"></i>
+                <span>دریافت</span>
+            </button>
+            <button class="action-btn" id="scan-btn">
+                <i class="fas fa-camera"></i>
+                <span>اسکن</span>
+            </button>
+            <button class="action-btn" id="swap-btn">
+                <i class="fas fa-exchange-alt"></i>
+                <span>تبدیل</span>
+            </button>
+            <button class="action-btn" id="luck-btn">
+                <i class="fas fa-dice"></i>
+                <span>شانس</span>
+            </button>
+            <button class="action-btn" id="stake-btn">
+                <i class="fas fa-lock"></i>
+                <span>سهام</span>
+            </button>
+            <button class="action-btn" id="nft-btn">
+                <i class="fas fa-images"></i>
+                <span>NFTها</span>
+            </button>
+            <button class="action-btn" id="browser-btn">
+                <i class="fas fa-globe"></i>
+                <span>مرورگر</span>
+            </button>
+        </div>
+        
+        <div class="transactions">
+            <div class="section-title">
+                <span>تاریخچه تراکنش‌ها</span>
+                <i class="fas fa-history"></i>
+            </div>
+            
+            <div id="transactions-list">
+                <!-- تراکنش‌ها به صورت دینامیک اضافه می‌شوند -->
+            </div>
+        </div>
+
+        <div class="footer">
+            ساخته شده توسط محمد حسین
+        </div>
+        
+        <!-- صفحه ارسال -->
+        <div class="page" id="send-page">
+            <div class="page-header">
+                <button class="back-btn" id="send-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">ارسال دلار مجازی</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="receiver-address">آدرس گیرنده</label>
+                <input type="text" id="receiver-address" placeholder="آدرس کیف پول گیرنده">
+            </div>
+            
+            <div class="form-group">
+                <label for="send-amount">مبلغ (VUSD)</label>
+                <input type="number" id="send-amount" placeholder="مبلغ را وارد کنید">
+            </div>
+            
+            <button class="submit-btn" id="send-submit">ارسال الآن</button>
+        </div>
+        
+        <!-- صفحه دریافت -->
+        <div class="page" id="receive-page">
+            <div class="page-header">
+                <button class="back-btn" id="receive-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">دریافت دلار مجازی</h2>
+            </div>
+            
+            <div class="qr-code">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=GameFiWallet:user123" alt="QR Code">
+            </div>
+            
+            <div class="address">
+                GameFiWallet:user123
+            </div>
+        </div>
+        
+        <!-- صفحه اسکن -->
+        <div class="page" id="scan-page">
+            <div class="page-header">
+                <button class="back-btn" id="scan-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">اسکن کد QR</h2>
+            </div>
+            
+            <div class="scan-container">
+                <div class="scan-box"></div>
+                <p>کد QR را درون کادر قرار دهید</p>
+                <button class="torch-btn" id="torch-btn">
+                    <i class="fas fa-lightbulb"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- صفحه تبدیل -->
+        <div class="page" id="swap-page">
+            <div class="page-header">
+                <button class="back-btn" id="swap-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">تبدیل ارز</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="swap-from">از</label>
+                <select id="swap-from">
+                    <option value="VUSD">دلار مجازی (VUSD)</option>
+                    <option value="GEM">GEM</option>
+                    <option value="XP">XP</option>
+                    <option value="GOLD">GOLD</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="swap-to">به</label>
+                <select id="swap-to">
+                    <option value="GEM">GEM</option>
+                    <option value="XP">XP</option>
+                    <option value="GOLD">GOLD</option>
+                    <option value="VUSD">دلار مجازی (VUSD)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="swap-amount">مبلغ</label>
+                <input type="number" id="swap-amount" placeholder="مبلغ را وارد کنید">
+            </div>
+            
+            <div class="swap-container">
+                <div class="swap-card">
+                    <div class="swap-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="swap-details">
+                        <div class="swap-title">VUSD به GEM</div>
+                        <div class="swap-rate">1 VUSD = 10 GEM</div>
+                    </div>
+                    <div class="swap-arrow">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                </div>
+                
+                <div class="swap-card">
+                    <div class="swap-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="swap-details">
+                        <div class="swap-title">GEM به XP</div>
+                        <div class="swap-rate">1 GEM = 5 XP</div>
+                    </div>
+                    <div class="swap-arrow">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                </div>
+                
+                <div class="swap-card">
+                    <div class="swap-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="swap-details">
+                        <div class="swap-title">XP به GOLD</div>
+                        <div class="swap-rate">100 XP = 1 GOLD</div>
+                    </div>
+                    <div class="swap-arrow">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="submit-btn" id="swap-submit">تبدیل الآن</button>
+        </div>
+        
+        <!-- صفحه شانس -->
+        <div class="page" id="luck-page">
+            <div class="page-header">
+                <button class="back-btn" id="luck-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">شانس خود را امتحان کنید</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="luck-amount">مبلغ دلار مجازی برای شرط</label>
+                <input type="number" id="luck-amount" placeholder="مبلغ را وارد کنید">
+            </div>
+            
+            <div class="luck-container">
+                <div class="luck-wheel" id="luck-wheel">
+                    <div class="luck-pointer"></div>
+                </div>
+                <p>30% شانس برای برنده شدن و دریافت دو برابر</p>
+                <button class="luck-btn" id="try-luck">شانس خود را امتحان کنید!</button>
+            </div>
+        </div>
+        
+        <!-- صفحه سهام -->
+        <div class="page" id="stake-page">
+            <div class="page-header">
+                <button class="back-btn" id="stake-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">سهام‌گذاری</h2>
+            </div>
+            
+            <div class="form-group">
+                <label for="stake-amount">مبلغ دلار مجازی برای سهام‌گذاری</label>
+                <input type="number" id="stake-amount" placeholder="مبلغ را وارد کنید">
+            </div>
+            
+            <div class="stake-options">
+                <div class="stake-option active" data-days="7">
+                    <div class="stake-duration">7 روز</div>
+                    <div class="stake-apy">APY 5%</div>
+                </div>
+                <div class="stake-option" data-days="14">
+                    <div class="stake-duration">14 روز</div>
+                    <div class="stake-apy">APY 10%</div>
+                </div>
+                <div class="stake-option" data-days="30">
+                    <div class="stake-duration">30 روز</div>
+                    <div class="stake-apy">APY 20%</div>
+                </div>
+                <div class="stake-option" data-days="60">
+                    <div class="stake-duration">60 روز</div>
+                    <div class="stake-apy">APY 35%</div>
+                </div>
+            </div>
+            
+            <button class="submit-btn" id="stake-submit">سهام‌گذاری الآن</button>
+        </div>
+        
+        <!-- صفحه NFTها -->
+        <div class="page" id="nft-page">
+            <div class="page-header">
+                <button class="back-btn" id="nft-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">مجموعه NFTهای شما</h2>
+            </div>
+            
+            <div class="collectibles-grid" id="collectibles-grid">
+                <!-- NFTها به صورت دینامیک اضافه می‌شوند -->
+            </div>
+        </div>
+        
+        <!-- صفحه مرورگر -->
+        <div class="page" id="browser-page">
+            <div class="page-header">
+                <button class="back-btn" id="browser-back"><i class="fas fa-arrow-right"></i></button>
+                <h2 class="page-title">مرورگر</h2>
+            </div>
+            
+            <div class="transactions">
+                <div class="section-title">
+                    <span>منوهای اصلی</span>
+                    <i class="fas fa-list"></i>
+                </div>
+                
+                <div class="transaction" id="browser-news">
+                    <div class="transaction-icon">
+                        <i class="fas fa-newspaper"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">اخبار و به‌روزرسانی‌ها</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                </div>
+                
+                <div class="transaction" id="browser-guide">
+                    <div class="transaction-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">راهنمای بازی</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                </div>
+                
+                <div class="transaction" id="browser-leaderboard">
+                    <div class="transaction-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">جدول رده‌بندی</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                </div>
+                
+                <div class="transaction" id="browser-market">
+                    <div class="transaction-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">بازار NFT</div>
+                    </div>
+                    <div class="transaction-amount">
+                        <i class="fas fa-arrow-left"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // وضعیت برنامه
+        const state = {
+            balance: 0,
+            steps: 0,
+            vusd: 0,
+            gems: 100,
+            xp: 50,
+            gold: 2,
+            staked: 0,
+            selectedStakeDays: 7,
+            transactions: [],
+            nfts: [
+                { id: 1, name: "مدال طلایی", value: "50 GOLD", icon: "fa-medal" },
+                { id: 2, name: "الماس نادر", value: "1000 GEM", icon: "fa-gem" },
+                { id: 3, name: "جام قهرمانی", value: "500 XP", icon: "fa-trophy" },
+                { id: 4, name: "ستاره طلایی", value: "200 GOLD", icon: "fa-star" }
+            ],
+            lastStepUpdate: null
+        };
+        
+        // عناصر DOM
+        const elements = {
+            balance: document.getElementById('balance'),
+            stepCount: document.getElementById('step-count'),
+            stepsValue: document.getElementById('steps-value'),
+            transactionsList: document.getElementById('transactions-list'),
+            collectiblesGrid: document.getElementById('collectibles-grid'),
+            luckWheel: document.getElementById('luck-wheel'),
+            
+            // صفحات
+            pages: {
+                main: document.querySelector('.container > :not(.page)'),
+                send: document.getElementById('send-page'),
+                receive: document.getElementById('receive-page'),
+                scan: document.getElementById('scan-page'),
+                swap: document.getElementById('swap-page'),
+                luck: document.getElementById('luck-page'),
+                stake: document.getElementById('stake-page'),
+                nft: document.getElementById('nft-page'),
+                browser: document.getElementById('browser-page')
+            },
+            
+            // دکمه‌ها
+            buttons: {
+                send: document.getElementById('send-btn'),
+                receive: document.getElementById('receive-btn'),
+                scan: document.getElementById('scan-btn'),
+                swap: document.getElementById('swap-btn'),
+                luck: document.getElementById('luck-btn'),
+                stake: document.getElementById('stake-btn'),
+                nft: document.getElementById('nft-btn'),
+                browser: document.getElementById('browser-btn'),
+                
+                // دکمه‌های بازگشت
+                sendBack: document.getElementById('send-back'),
+                receiveBack: document.getElementById('receive-back'),
+                scanBack: document.getElementById('scan-back'),
+                swapBack: document.getElementById('swap-back'),
+                luckBack: document.getElementById('luck-back'),
+                stakeBack: document.getElementById('stake-back'),
+                nftBack: document.getElementById('nft-back'),
+                browserBack: document.getElementById('browser-back'),
+                
+                // دکمه‌های ارسال فرم
+                sendSubmit: document.getElementById('send-submit'),
+                swapSubmit: document.getElementById('swap-submit'),
+                tryLuck: document.getElementById('try-luck'),
+                stakeSubmit: document.getElementById('stake-submit'),
+                torch: document.getElementById('torch-btn')
+            },
+            
+            // فرم‌ها
+            forms: {
+                send: {
+                    address: document.getElementById('receiver-address'),
+                    amount: document.getElementById('send-amount')
+                },
+                swap: {
+                    from: document.getElementById('swap-from'),
+                    to: document.getElementById('swap-to'),
+                    amount: document.getElementById('swap-amount')
+                },
+                luck: {
+                    amount: document.getElementById('luck-amount')
+                },
+                stake: {
+                    amount: document.getElementById('stake-amount')
+                }
+            },
+            
+            // گزینه‌های سهام
+            stakeOptions: document.querySelectorAll('.stake-option')
+        };
+        
+        // توابع
+        function updateUI() {
+            elements.balance.textContent = `${state.vusd} VUSD`;
+            elements.stepCount.textContent = state.steps;
+            elements.stepsValue.textContent = state.steps;
+            
+            // ذخیره وضعیت در localStorage
+            saveState();
+        }
+        
+        function showPage(page) {
+            // مخفی کردن همه صفحات
+            Object.values(elements.pages).forEach(p => {
+                p.classList.remove('active');
+            });
+            
+            // نمایش صفحه درخواستی
+            if (page === 'main') {
+                elements.pages.main.style.display = 'flex';
+            } else {
+                elements.pages.main.style.display = 'none';
+                elements.pages[page].classList.add('active');
+            }
+        }
+        
+        function addTransaction(type, amount, title, icon = 'fa-exchange-alt') {
+            const now = new Date();
+            const transaction = {
+                type,
+                amount,
+                title,
+                icon,
+                date: now.toLocaleString('fa-IR'),
+                isPositive: amount > 0
+            };
+            
+            state.transactions.unshift(transaction);
+            renderTransactions();
+            
+            // ذخیره وضعیت
+            saveState();
+        }
+        
+        function renderTransactions() {
+            elements.transactionsList.innerHTML = '';
+            
+            state.transactions.slice(0, 10).forEach(tx => {
+                const transactionEl = document.createElement('div');
+                transactionEl.className = 'transaction';
+                
+                transactionEl.innerHTML = `
+                    <div class="transaction-icon">
+                        <i class="fas ${tx.icon}"></i>
+                    </div>
+                    <div class="transaction-details">
+                        <div class="transaction-title">${tx.title}</div>
+                        <div class="transaction-date">${tx.date}</div>
+                    </div>
+                    <div class="transaction-amount ${tx.isPositive ? 'positive' : 'negative'}">
+                        ${tx.isPositive ? '+' : ''}${tx.amount} ${tx.type}
+                    </div>
+                `;
+                
+                elements.transactionsList.appendChild(transactionEl);
+            });
+        }
+        
+        function renderNFTs() {
+            elements.collectiblesGrid.innerHTML = '';
+            
+            state.nfts.forEach(nft => {
+                const nftEl = document.createElement('div');
+                nftEl.className = 'collectible';
+                
+                nftEl.innerHTML = `
+                    <div class="collectible-image">
+                        <i class="fas ${nft.icon}"></i>
+                    </div>
+                    <div class="collectible-details">
+                        <div class="collectible-name">${nft.name}</div>
+                        <div class="collectible-value">${nft.value}</div>
+                    </div>
+                `;
+                
+                elements.collectiblesGrid.appendChild(nftEl);
+            });
+        }
+        
+        function saveState() {
+            localStorage.setItem('gamefi_wallet_state', JSON.stringify({
+                balance: state.balance,
+                steps: state.steps,
+                vusd: state.vusd,
+                gems: state.gems,
+                xp: state.xp,
+                gold: state.gold,
+                staked: state.staked,
+                transactions: state.transactions,
+                nfts: state.nfts,
+                lastStepUpdate: state.lastStepUpdate
+            }));
+        }
+        
+        function loadState() {
+            const savedState = localStorage.getItem('gamefi_wallet_state');
+            if (savedState) {
+                const parsed = JSON.parse(savedState);
+                Object.assign(state, parsed);
+                
+                // اگر آخرین بروزرسانی قدم‌ها امروز نبود، قدم‌های امروز را صفر می‌کنیم
+                if (state.lastStepUpdate) {
+                    const lastUpdate = new Date(state.lastStepUpdate);
+                    const today = new Date();
+                    
+                    if (lastUpdate.getDate() !== today.getDate() || 
+                        lastUpdate.getMonth() !== today.getMonth() || 
+                        lastUpdate.getFullYear() !== today.getFullYear()) {
+                        state.steps = 0;
+                    }
+                }
+                
+                updateUI();
+                renderTransactions();
+                renderNFTs();
+            }
+        }
+        
+        // شبیه‌سازی قدم‌زنی واقعی با استفاده از API دستگاه
+        function setupStepCounter() {
+            // در محیط واقعی، اینجا از APIهای مانند Google Fit یا Apple HealthKit استفاده می‌شود
+            // این یک شبیه‌سازی برای نمایش عملکرد است
+            
+            // برای دمو: با تکان دادن دستگاه قدم‌ها افزایش می‌یابند
+            let lastShakeTime = 0;
+            const shakeThreshold = 800; // میلی‌ثانیه
+            
+            window.addEventListener('devicemotion', (event) => {
+                const acceleration = event.accelerationIncludingGravity;
+                const shake = Math.sqrt(
+                    acceleration.x * acceleration.x + 
+                    acceleration.y * acceleration.y + 
+                    acceleration.z * acceleration.z
+                );
+                
+                const now = Date.now();
+                if (shake > 15 && now - lastShakeTime > shakeThreshold) {
+                    lastShakeTime = now;
+                    addStep();
+                }
+            });
+            
+            // برای محیط دسکتاپ: با کلیک روی آیکون قدم، یک قدم اضافه می‌شود
+            document.querySelector('.steps i').addEventListener('click', addStep);
+        }
+        
+        function addStep() {
+            state.steps++;
+            state.vusd++;
+            state.lastStepUpdate = new Date().toISOString();
+            
+            addTransaction('VUSD', 1, 'قدم‌زنی', 'fa-shoe-prints');
+            updateUI();
+            
+            // افکت ویبره در دستگاه‌های موبایل
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            // افکت بصری
+            elements.stepCount.classList.add('shake');
+            setTimeout(() => {
+                elements.stepCount.classList.remove('shake');
+            }, 500);
+        }
+        
+        // رویدادها
+        elements.buttons.send.addEventListener('click', () => showPage('send'));
+        elements.buttons.receive.addEventListener('click', () => showPage('receive'));
+        elements.buttons.scan.addEventListener('click', () => showPage('scan'));
+        elements.buttons.swap.addEventListener('click', () => showPage('swap'));
+        elements.buttons.luck.addEventListener('click', () => showPage('luck'));
+        elements.buttons.stake.addEventListener('click', () => showPage('stake'));
+        elements.buttons.nft.addEventListener('click', () => showPage('nft'));
+        elements.buttons.browser.addEventListener('click', () => showPage('browser'));
+        
+        elements.buttons.sendBack.addEventListener('click', () => showPage('main'));
+        elements.buttons.receiveBack.addEventListener('click', () => showPage('main'));
+        elements.buttons.scanBack.addEventListener('click', () => showPage('main'));
+        elements.buttons.swapBack.addEventListener('click', () => showPage('main'));
+        elements.buttons.luckBack.addEventListener('click', () => showPage('main'));
+        elements.buttons.stakeBack.addEventListener('click', () => showPage('main'));
+        elements.buttons.nftBack.addEventListener('click', () => showPage('main'));
+        elements.buttons.browserBack.addEventListener('click', () => showPage('main'));
+        
+        elements.buttons.sendSubmit.addEventListener('click', () => {
+            const amount = parseFloat(elements.forms.send.amount.value);
+            const address = elements.forms.send.address.value;
+            
+            if (amount && address && amount <= state.vusd) {
+                state.vusd -= amount;
+                updateUI();
+                addTransaction('VUSD', -amount, `ارسال به ${address}`, 'fa-paper-plane');
+                alert(`ارسال ${amount} VUSD به آدرس ${address} با موفقیت انجام شد!`);
+                showPage('main');
+                
+                // ریست فرم
+                elements.forms.send.amount.value = '';
+                elements.forms.send.address.value = '';
+            } else {
+                alert('لطفاً اطلاعات را به درستی وارد کنید و از کافی بودن موجودی اطمینان حاصل کنید.');
+            }
+        });
+        
+        elements.buttons.swapSubmit.addEventListener('click', () => {
+            const amount = parseFloat(elements.forms.swap.amount.value);
+            const from = elements.forms.swap.from.value;
+            const to = elements.forms.swap.to.value;
+            
+            if (amount && amount > 0) {
+                if (from === 'VUSD' && amount <= state.vusd) {
+                    state.vusd -= amount;
+                    
+                    if (to === 'GEM') {
+                        state.gems += amount * 10;
+                        addTransaction(from, -amount, `تبدیل به GEM`, 'fa-gem');
+                        addTransaction('GEM', amount * 10, `تبدیل از VUSD`, 'fa-dollar-sign');
+                    } else if (to === 'XP') {
+                        state.xp += amount * 5;
+                        addTransaction(from, -amount, `تبدیل به XP`, 'fa-medal');
+                        addTransaction('XP', amount * 5, `تبدیل از VUSD`, 'fa-dollar-sign');
+                    } else if (to === 'GOLD') {
+                        state.gold += amount / 100;
+                        addTransaction(from, -amount, `تبدیل به GOLD`, 'fa-coins');
+                        addTransaction('GOLD', amount / 100, `تبدیل از VUSD`, 'fa-dollar-sign');
+                    }
+                    
+                    alert(`تبدیل ${amount} ${from} به ${to} با موفقیت انجام شد!`);
+                    showPage('main');
+                } else if (from === 'GEM' && amount <= state.gems) {
+                    state.gems -= amount;
+                    
+                    if (to === 'VUSD') {
+                        state.vusd += amount / 10;
+                        addTransaction(from, -amount, `تبدیل به VUSD`, 'fa-dollar-sign');
+                        addTransaction('VUSD', amount / 10, `تبدیل از GEM`, 'fa-gem');
+                    } else if (to === 'XP') {
+                        state.xp += amount * 5;
+                        addTransaction(from, -amount, `تبدیل به XP`, 'fa-medal');
+                        addTransaction('XP', amount * 5, `تبدیل از GEM`, 'fa-gem');
+                    } else if (to === 'GOLD') {
+                        state.gold += amount / 1000;
+                        addTransaction(from, -amount, `تبدیل به GOLD`, 'fa-coins');
+                        addTransaction('GOLD', amount / 1000, `تبدیل از GEM`, 'fa-gem');
+                    }
+                    
+                    alert(`تبدیل ${amount} ${from} به ${to} با موفقیت انجام شد!`);
+                    showPage('main');
+                } else if (from === 'XP' && amount <= state.xp) {
+                    state.xp -= amount;
+                    
+                    if (to === 'VUSD') {
+                        state.vusd += amount / 5;
+                        addTransaction(from, -amount, `تبدیل به VUSD`, 'fa-dollar-sign');
+                        addTransaction('VUSD', amount / 5, `تبدیل از XP`, 'fa-medal');
+                    } else if (to === 'GEM') {
+                        state.gems += amount / 5;
+                        addTransaction(from, -amount, `تبدیل به GEM`, 'fa-gem');
+                        addTransaction('GEM', amount / 5, `تبدیل از XP`, 'fa-medal');
+                    } else if (to === 'GOLD') {
+                        state.gold += amount / 100;
+                        addTransaction(from, -amount, `تبدیل به GOLD`, 'fa-coins');
+                        addTransaction('GOLD', amount / 100, `تبدیل از XP`, 'fa-medal');
+                    }
+                    
+                    alert(`تبدیل ${amount} ${from} به ${to} با موفقیت انجام شد!`);
+                    showPage('main');
+                } else if (from === 'GOLD' && amount <= state.gold) {
+                    state.gold -= amount;
+                    
+                    if (to === 'VUSD') {
+                        state.vusd += amount * 100;
+                        addTransaction(from, -amount, `تبدیل به VUSD`, 'fa-dollar-sign');
+                        addTransaction('VUSD', amount * 100, `تبدیل از GOLD`, 'fa-coins');
+                    } else if (to === 'GEM') {
+                        state.gems += amount * 1000;
+                        addTransaction(from, -amount, `تبدیل به GEM`, 'fa-gem');
+                        addTransaction('GEM', amount * 1000, `تبدیل از GOLD`, 'fa-coins');
+                    } else if (to === 'XP') {
+                        state.xp += amount * 100;
+                        addTransaction(from, -amount, `تبدیل به XP`, 'fa-medal');
+                        addTransaction('XP', amount * 100, `تبدیل از GOLD`, 'fa-coins');
+                    }
+                    
+                    alert(`تبدیل ${amount} ${from} به ${to} با موفقیت انجام شد!`);
+                    showPage('main');
+                } else {
+                    alert('موجودی کافی برای انجام این تبدیل وجود ندارد.');
+                }
+                
+                // ریست فرم
+                elements.forms.swap.amount.value = '';
+                updateUI();
+            } else {
+                alert('لطفاً مبلغ معتبر وارد کنید.');
+            }
+        });
+        
+        elements.buttons.tryLuck.addEventListener('click', () => {
+            const amount = parseFloat(elements.forms.luck.amount.value);
+            
+            if (amount && amount > 0 && amount <= state.vusd) {
+                state.vusd -= amount;
+                updateUI();
+                
+                // چرخش چرخ شانس
+                elements.luckWheel.classList.add('spinning');
+                elements.buttons.tryLuck.disabled = true;
+                
+                setTimeout(() => {
+                    elements.luckWheel.classList.remove('spinning');
+                    
+                    const isWin = Math.random() < 0.3; // 30% شانس برد
+                    
+                    setTimeout(() => {
+                        if (isWin) {
+                            const winAmount = amount * 2;
+                            state.vusd += winAmount;
+                            addTransaction('VUSD', winAmount, 'برنده بازی شانس', 'fa-trophy');
+                            alert(`تبریک! شما ${winAmount} VUSD برنده شدید!`);
+                            
+                            // افکت برد
+                            document.querySelector('.balance-card').classList.add('pulse');
+                            setTimeout(() => {
+                                document.querySelector('.balance-card').classList.remove('pulse');
+                            }, 1000);
+                        } else {
+                            addTransaction('VUSD', -amount, 'باخت بازی شانس', 'fa-sad-tear');
+                            alert('متأسفانه این بار برنده نشدید. مجدد امتحان کنید!');
+                        }
+                        
+                        updateUI();
+                        elements.buttons.tryLuck.disabled = false;
+                        elements.forms.luck.amount.value = '';
+                        showPage('main');
+                    }, 500);
+                }, 2000);
+            } else {
+                alert('لطفاً مبلغ معتبر وارد کنید و از کافی بودن موجودی اطمینان حاصل کنید.');
+            }
+        });
+        
+        elements.stakeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                elements.stakeOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                state.selectedStakeDays = parseInt(option.dataset.days);
+            });
+        });
+        
+        elements.buttons.stakeSubmit.addEventListener('click', () => {
+            const amount = parseFloat(elements.forms.stake.amount.value);
+            
+            if (amount && amount > 0 && amount <= state.vusd) {
+                state.vusd -= amount;
+                state.staked += amount;
+                
+                let apy = 0;
+                if (state.selectedStakeDays === 7) apy = 5;
+                else if (state.selectedStakeDays === 14) apy = 10;
+                else if (state.selectedStakeDays === 30) apy = 20;
+                else if (state.selectedStakeDays === 60) apy = 35;
+                
+                const profit = amount * (apy / 100) * (state.selectedStakeDays / 365);
+                
+                addTransaction('VUSD', -amount, `سهام‌گذاری برای ${state.selectedStakeDays} روز`, 'fa-lock');
+                alert(`سهام‌گذاری ${amount} VUSD برای ${state.selectedStakeDays} روز با سود ${apy}% ثبت شد. سود预估 شما: ${profit.toFixed(2)} VUSD`);
+                
+                // ریست فرم
+                elements.forms.stake.amount.value = '';
+                updateUI();
+                showPage('main');
+            } else {
+                alert('لطفاً مبلغ معتبر وارد کنید و از کافی بودن موجودی اطمینان حاصل کنید.');
+            }
+        });
+        
+        elements.buttons.torch.addEventListener('click', () => {
+            alert('چراغ قوه فعال شد!');
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+        });
+        
+        // رویدادهای مرورگر
+        document.getElementById('browser-news').addEventListener('click', () => {
+            alert('صفحه اخبار و به‌روزرسانی‌ها');
+        });
+        
+        document.getElementById('browser-guide').addEventListener('click', () => {
+            alert('صفحه راهنمای بازی');
+        });
+        
+        document.getElementById('browser-leaderboard').addEventListener('click', () => {
+            alert('صفحه جدول رده‌بندی');
+        });
+        
+        document.getElementById('browser-market').addEventListener('click', () => {
+            alert('صفحه بازار NFT');
+        });
+        
+        // مقداردهی اولیه
+        loadState();
+        setupStepCounter();
+        renderNFTs();
+        
+        // ذخیره وضعیت هنگام بسته شدن صفحه
+        window.addEventListener('beforeunload', saveState);
+    </script>
+</body>
+</html>
